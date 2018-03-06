@@ -6,10 +6,16 @@ from fee.classification import Expression as Exp
 from fee.data import FER2013Dataset
 from keras import optimizers
 import sys
+import tensorflow as tf
 
 # Limit cores usage
 from keras import backend as K
-K.set_session(K.tf.Session(config=K.tf.ConfigProto(inter_op_parallelism_threads=9)))
+config = tf.ConfigProto(intra_op_parallelism_threads=9,
+                        inter_op_parallelism_threads=9,
+                        allow_soft_placement=True,
+                        device_count={'CPU': 9})
+session = tf.Session(config=config)
+K.set_session(session)
 
 # - Global Vars ---------------------------------------------------------------
 # -----------------------------------------------------------------------------
