@@ -9,8 +9,7 @@ import sys
 
 # Limit cores usage
 from keras import backend as K
-K.set_session(K.tf.Session(config=K.tf.ConfigProto(intra_op_‌​parallelism_threads=9,
-                                                   inter_op_parallelism_threads=9)))
+K.set_session(K.tf.Session(config=K.tf.ConfigProto(inter_op_parallelism_threads=9)))
 
 # - Global Vars ---------------------------------------------------------------
 # -----------------------------------------------------------------------------
