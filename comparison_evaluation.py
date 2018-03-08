@@ -9,12 +9,13 @@ import sys
 # - Global Vars ---------------------------------------------------------------
 # -----------------------------------------------------------------------------
 
-if len(sys.argv) != 3:
-    print("Gib FER2013 path and created model path pls.")
+if len(sys.argv) != 4:
+    print("Gib FER2013 path, created model path and result target path pls.")
     exit()
 
 fer2013_path = sys.argv[1]
 model_path = sys.argv[2]
+result_path = sys.argv[3]
 
 INPUT_SHAPE = (48, 48, 1)
 EXPRESSIONS_INDEX = {
@@ -47,7 +48,7 @@ DATAS.shuffle()
 #         Exp.SURPRISE: DATAS.get_n_pictures([Exp.SURPRISE], count=STANDARD_COUNT),
 #     }
 
-standard_pics = DATAS.get_n_pictures([Exp.HAPPINESS], count=STANDARD_COUNT)
+standard_pics = DATAS.get_n_pictures([Exp.ANGER], count=STANDARD_COUNT)
 
 # training_pics = DATAS.get_n_pictures([Exp.ANGER, Exp.FEAR, Exp.HAPPINESS,
 #                                       Exp.NEUTRAL, Exp.SADNESS, Exp.SURPRISE],
@@ -61,7 +62,28 @@ validation_pics = DATAS.get_n_pictures([Exp.HAPPINESS, Exp.FEAR, Exp.ANGER,
                                        target="validation",
                                        count=20, start=10)
 
-print(len(validation_pics))
+# - Printing Images List ------------------------------------------------------
+# -----------------------------------------------------------------------------
+
+img_csv = open(result_path + 'img.csv', 'w')
+for i in range(0, len(standard_pics)):
+    img, exp = standard_pics[i]
+    height, width, dim = img.shape
+    img = img.reshape(height*width*dim)
+    img = img.tolist()
+    s = 's' + str(i) + ','
+    s += ' '.join(str(e) for e in img) + ','
+    s += exp.to_str() + '\n'
+    img_csv.write(s)
+for i in range(0, len(validation_pics)):
+    img, exp = validation_pics[i]
+    height, width, dim = img.shape
+    img = img.reshape(height*width*dim)
+    img = img.tolist()
+    s = 'v' + str(i) + ','
+    s += ' '.join(str(e) for e in img) + ','
+    s += exp.to_str() + '\n'
+    img_csv.write(s)
 
 # - Models --------------------------------------------------------------------
 # -----------------------------------------------------------------------------
@@ -79,6 +101,8 @@ model, exp = (m_ha, Exp.HAPPINESS)
 X1 = []
 X2 = []
 print("Predict for : "+exp.to_str())
+
+# Prediction datasets construction
 for j in range(0, len(validation_pics)):
     sum = 0
     for k in range(0, STANDARD_COUNT):
@@ -103,8 +127,16 @@ while i < len(sums):
     s = exp.to_str()
     for j in range(0, STANDARD_COUNT):
         exp1 = "D"
-        if sums[i] > 0.5:
+        if sums[i] >= 0.5:
             exp1 = "S"
         s += " " + exp1
         i += 1
     print(s)
+
+predict_csv = open(result_path + 'predict.csv', 'w')
+pos = 0
+for j in range(0, len(validation_pics)):
+    for k in range(0, STANDARD_COUNT):
+        s = 's'+str(k)+','+'v'+str(j)+','+str(sums[pos])+'\n'
+        predict_csv.write(s)
+        pos += 1
