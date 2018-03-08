@@ -64,16 +64,25 @@ def can_we_proceed(pointer):
             count += 1
     return True if count >= 2 else False
 
+
 pointer = 0
 while can_we_proceed(pointer):
     print(" === Pointer : "+str(pointer)+" ========== ")
     # Get training sets
-    training_pics = DATAS.get_n_pictures(expressions,
-                                         count=PIC_PER_ROUND,
-                                         start=pointer)
-    XT1, XT2, YT = CCG.generate_training_set(training_pics)
-    # Train the model
-    model.fit([XT1, XT2], YT, batch_size=BATCH_SIZE, epochs=1, verbose=1)
+    # With balance on one class at a time, 50% for one class & 50% for the rest
+    for i, exp in enumerate(expressions):
+        training_pics = DATAS.get_n_pictures([exp],
+                                             count=PIC_PER_ROUND,
+                                             start=pointer)
+        explist = list(expressions)
+        explist.remove(exp)
+        count = int(PIC_PER_ROUND/(len(expressions) - 1))
+        training_pics += DATAS.get_n_pictures(explist,
+                                              count=count,
+                                              start=pointer)
+        XT1, XT2, YT = CCG.generate_monoclass_training_set(training_pics, exp)
+        # Train the model
+        model.fit([XT1, XT2], YT, batch_size=BATCH_SIZE, epochs=1, verbose=1)
     # Increase pointer for next round
     pointer += PIC_PER_ROUND
     # Save model (in case of crash)
