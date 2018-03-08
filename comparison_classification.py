@@ -20,12 +20,16 @@ K.set_session(session)
 # - Global Vars ---------------------------------------------------------------
 # -----------------------------------------------------------------------------
 
-if len(sys.argv) != 3:
+if len(sys.argv) < 3:
     print("Gib FER2013 path and created model path pls.")
     exit()
 
 fer2013_path = sys.argv[1]
 model_path = sys.argv[2]
+
+BATCH_SIZE = 64
+if len(sys.argv) > 3:
+    BATCH_SIZE = sys.argv[3]
 
 INPUT_SHAPE = (48, 48, 1)
 PIC_PER_ROUND = 50
@@ -60,7 +64,6 @@ def can_we_proceed(pointer):
             count += 1
     return True if count >= 2 else False
 
-
 pointer = 0
 while can_we_proceed(pointer):
     print(" === Pointer : "+str(pointer)+" ========== ")
@@ -70,7 +73,7 @@ while can_we_proceed(pointer):
                                          start=pointer)
     XT1, XT2, YT = CCG.generate_training_set(training_pics)
     # Train the model
-    model.fit([XT1, XT2], YT, batch_size=64, epochs=1, verbose=1)
+    model.fit([XT1, XT2], YT, batch_size=BATCH_SIZE, epochs=1, verbose=1)
     # Increase pointer for next round
     pointer += PIC_PER_ROUND
     # Save model (in case of crash)
