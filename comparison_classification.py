@@ -29,7 +29,7 @@ model_path = sys.argv[2]
 
 BATCH_SIZE = 64
 if len(sys.argv) > 3:
-    BATCH_SIZE = sys.argv[3]
+    BATCH_SIZE = int(sys.argv[3])
 
 INPUT_SHAPE = (48, 48, 1)
 PIC_PER_ROUND = 50
